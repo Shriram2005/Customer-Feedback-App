@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -18,14 +17,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
@@ -33,16 +30,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -56,12 +48,12 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FeedbackDashboard(
+fun UserDashboard(
     navController: NavController,
     viewModel: AppViewModel
 ) {
     val context = LocalContext.current
-    
+
     // Check if user is logged in
     LaunchedEffect(viewModel.currentUser) {
         if (viewModel.currentUser == null) {
@@ -90,7 +82,7 @@ fun FeedbackDashboard(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                navController.navigate(Screen.Feedback.route)
+                navController.navigate(Screen.Feedback.createRoute())
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Add Feedback")
             }
@@ -128,17 +120,18 @@ fun FeedbackDashboard(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-                
+
                 LazyColumn {
                     items(viewModel.feedbackList.sortedByDescending { it.timestamp }) { feedback ->
                         FeedbackItem(
                             feedback = feedback,
                             onEditClick = {
-                                navController.navigate(Screen.Feedback.route)
+                                navController.navigate(Screen.Feedback.createRoute(feedback.id))
                             },
                             onDeleteClick = {
                                 viewModel.deleteFeedback(feedback.id) {
-                                    Toast.makeText(context, "Feedback deleted", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Feedback deleted", Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             }
                         )
@@ -146,7 +139,7 @@ fun FeedbackDashboard(
                     }
                 }
             }
-            
+
             // Show error message if any
             viewModel.errorMessage?.let { error ->
                 Spacer(modifier = Modifier.height(16.dp))
@@ -166,7 +159,7 @@ fun FeedbackItem(
 ) {
     val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
     val formattedDate = dateFormat.format(Date(feedback.timestamp))
-    
+
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -177,13 +170,13 @@ fun FeedbackItem(
                 text = feedback.text,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            
+
             Text(
                 text = "Created: $formattedDate",
                 fontSize = 12.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -191,7 +184,7 @@ fun FeedbackItem(
                 IconButton(onClick = onEditClick) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit")
                 }
-                
+
                 IconButton(onClick = onDeleteClick) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete")
                 }

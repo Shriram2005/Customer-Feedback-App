@@ -1,5 +1,6 @@
 package com.shriram.customerfeedback.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,9 +13,11 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
@@ -27,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -49,8 +53,12 @@ fun LoginScreen(
     var isPasswordVisible by remember { mutableStateOf(false) }
     
     // Check if user is already logged in
-    LaunchedEffect(viewModel.currentUser) {
-        if (viewModel.currentUser != null) {
+    LaunchedEffect(viewModel.currentUser, viewModel.isAdmin) {
+        if (viewModel.isAdmin) {
+            navController.navigate(Screen.Admin.route) {
+                popUpTo(Screen.Login.route) { inclusive = true }
+            }
+        } else if (viewModel.currentUser != null) {
             navController.navigate(Screen.Home.route) {
                 popUpTo(Screen.Login.route) { inclusive = true }
             }
@@ -65,7 +73,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Customer Feedback",
+            text = "Login",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 32.dp)
@@ -104,12 +112,21 @@ fun LoginScreen(
             onClick = {
                 if (email.isNotEmpty() && password.isNotEmpty()) {
                     viewModel.loginUser(email, password) {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
+                        if (viewModel.isAdmin) {
+                            navController.navigate(Screen.Admin.route) {
+                                popUpTo(Screen.Login.route) { inclusive = true }
+                            }
+                        } else {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Login.route) { inclusive = true }
+                            }
                         }
                     }
                 }
             },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF78D0B1),
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

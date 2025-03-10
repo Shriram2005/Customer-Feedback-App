@@ -36,6 +36,8 @@ class AppViewModel : ViewModel() {
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     var feedbackList by mutableStateOf<List<Feedback>>(emptyList())
+    var allFeedbacksList by mutableStateOf<List<FeedbackWithUser>>(emptyList())
+    var isAdmin by mutableStateOf(false)
     
     init {
         currentUser = auth.currentUser
@@ -79,6 +81,14 @@ class AppViewModel : ViewModel() {
                 isLoading = true
                 errorMessage = null
                 
+                // Check if admin login
+                if (email == "admin" && password == "admin") {
+                    isAdmin = true
+                    fetchAllFeedbacks()
+                    onSuccess()
+                    return@launch
+                }
+                
                 val result = auth.signInWithEmailAndPassword(email, password).await()
                 currentUser = result.user
                 fetchFeedbacks()
@@ -96,6 +106,8 @@ class AppViewModel : ViewModel() {
         auth.signOut()
         currentUser = null
         feedbackList = emptyList()
+        allFeedbacksList = emptyList()
+        isAdmin = false
     }
     
     fun submitFeedback(text: String, onSuccess: () -> Unit) {
@@ -137,7 +149,13 @@ class AppViewModel : ViewModel() {
                 database.child("feedbacks").child(feedbackId)
                     .child("text").setValue(text).await()
                 
-                fetchFeedbacks()
+                // If admin is updating, refresh all feedbacks
+                if (isAdmin) {
+                    fetchAllFeedbacks()
+                } else {
+                    fetchFeedbacks()
+                }
+                
                 onSuccess()
             } catch (e: Exception) {
                 errorMessage = e.message
@@ -156,7 +174,13 @@ class AppViewModel : ViewModel() {
                 
                 database.child("feedbacks").child(feedbackId).removeValue().await()
                 
-                fetchFeedbacks()
+                // If admin is deleting, refresh all feedbacks
+                if (isAdmin) {
+                    fetchAllFeedbacks()
+                } else {
+                    fetchFeedbacks()
+                }
+                
                 onSuccess()
             } catch (e: Exception) {
                 errorMessage = e.message
@@ -188,6 +212,84 @@ class AppViewModel : ViewModel() {
                     }
                 })
         }
+    }
+    
+    data class FeedbackWithUser(
+        val id: String = "",
+        val userId: String = "",
+        val username: String = "",
+        val text: String = "",
+        val timestamp: Long = System.currentTimeMillis()
+    )
+    
+    private fun fetchAllFeedbacks() {
+        isLoading = true
+        database.child("feedbacks")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val feedbacksWithUsers = mutableListOf<FeedbackWithUser>()
+                    
+                    // First, get all feedbacks
+                    val feedbacks = mutableListOf<Pair<String, Feedback>>()
+                    for (feedbackSnapshot in snapshot.children) {
+                        val feedback = feedbackSnapshot.getValue(Feedback::class.java)
+                        feedback?.let { 
+                            feedbacks.add(Pair(feedbackSnapshot.key ?: "", it))
+                        }
+                    }
+                    
+                    // If no feedbacks, set empty list and return
+                    if (feedbacks.isEmpty()) {
+                        allFeedbacksList = emptyList()
+                        isLoading = false
+                        return
+                    }
+                    
+                    // Get all users to match with feedbacks
+                    database.child("users").addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(usersSnapshot: DataSnapshot) {
+                            val userMap = mutableMapOf<String, String>()
+                            
+                            // Create map of userId to username
+                            for (userSnapshot in usersSnapshot.children) {
+                                val user = userSnapshot.getValue(User::class.java)
+                                user?.let {
+                                    userMap[it.uid] = it.username
+                                }
+                            }
+                            
+                            // Create FeedbackWithUser objects
+                            for ((id, feedback) in feedbacks) {
+                                val username = userMap[feedback.userId] ?: "Unknown User"
+                                feedbacksWithUsers.add(
+                                    FeedbackWithUser(
+                                        id = id,
+                                        userId = feedback.userId,
+                                        username = username,
+                                        text = feedback.text,
+                                        timestamp = feedback.timestamp
+                                    )
+                                )
+                            }
+                            
+                            allFeedbacksList = feedbacksWithUsers
+                            isLoading = false
+                        }
+                        
+                        override fun onCancelled(error: DatabaseError) {
+                            errorMessage = error.message
+                            Log.e("AppViewModel", "Fetch users error: ${error.message}")
+                            isLoading = false
+                        }
+                    })
+                }
+                
+                override fun onCancelled(error: DatabaseError) {
+                    errorMessage = error.message
+                    Log.e("AppViewModel", "Fetch all feedbacks error: ${error.message}")
+                    isLoading = false
+                }
+            })
     }
 }
 

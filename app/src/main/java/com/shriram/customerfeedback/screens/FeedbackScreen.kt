@@ -3,14 +3,13 @@ package com.shriram.customerfeedback.screens
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Snackbar
@@ -22,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,6 +41,9 @@ fun FeedbackScreen(
     val context = LocalContext.current
     var feedbackText by remember { mutableStateOf(feedbackToEdit?.text ?: "") }
     val isEditMode = feedbackToEdit != null
+    
+    // If admin is editing, we need to handle navigation differently
+    val isAdminEditing = viewModel.isAdmin && isEditMode
 
     Column(
         modifier = Modifier
@@ -53,7 +56,7 @@ fun FeedbackScreen(
             text = if (isEditMode) "Edit Feedback" else "Add Feedback",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 32.dp)
+            modifier = Modifier.padding(vertical = 32.dp)
         )
 
         // text input for feedback
@@ -75,7 +78,13 @@ fun FeedbackScreen(
                     if (isEditMode) {
                         viewModel.updateFeedback(feedbackToEdit!!.id, feedbackText) {
                             Toast.makeText(context, "Feedback updated successfully!", Toast.LENGTH_SHORT).show()
-                            navController.navigateUp()
+                            if (isAdminEditing) {
+                                navController.navigate(Screen.Admin.route) {
+                                    popUpTo(Screen.Feedback.route) { inclusive = true }
+                                }
+                            } else {
+                                navController.navigateUp()
+                            }
                         }
                     } else {
                         viewModel.submitFeedback(feedbackText) {
@@ -88,6 +97,9 @@ fun FeedbackScreen(
                 }
             },
             enabled = !viewModel.isLoading,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF78D0B1)
+            ),
             modifier = Modifier.fillMaxWidth()
         ) {
             if (viewModel.isLoading) {
@@ -101,8 +113,17 @@ fun FeedbackScreen(
         
         Button(
             onClick = {
-                navController.navigateUp()
+                if (isAdminEditing) {
+                    navController.navigate(Screen.Admin.route) {
+                        popUpTo(Screen.Feedback.route) { inclusive = true }
+                    }
+                } else {
+                    navController.navigateUp()
+                }
             },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Gray
+            ),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Cancel")
