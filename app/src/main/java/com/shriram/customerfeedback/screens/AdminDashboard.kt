@@ -1,7 +1,6 @@
 package com.shriram.customerfeedback.screens
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,9 +19,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,9 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -95,9 +89,6 @@ fun AdminDashboard(
                         Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF78D0B1)
-                )
             )
         }
     ) { paddingValues ->
@@ -114,7 +105,7 @@ fun AdminDashboard(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = Color(0xFF78D0B1))
+                    CircularProgressIndicator()
                 }
             } else if (viewModel.allFeedbacksList.isEmpty()) {
                 Box(
@@ -173,9 +164,6 @@ fun AdminDashboard(
             Button(
                 onClick = { viewModel.logout() },
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF78D0B1)
-                )
             ) {
                 Text("Log Out")
             }
@@ -221,7 +209,6 @@ fun FeedbackCard(
                     text = "#$index",
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = Color(0xFF78D0B1)
                 )
                 
                 Text(
@@ -258,7 +245,6 @@ fun FeedbackCard(
                     Icon(
                         Icons.Default.Edit,
                         contentDescription = "Edit",
-                        tint = Color(0xFF78D0B1)
                     )
                 }
                 
@@ -354,9 +340,6 @@ fun ViewFeedbackDialog(
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier.align(Alignment.End),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF78D0B1)
-                    )
                 ) {
                     Text("Close")
                 }

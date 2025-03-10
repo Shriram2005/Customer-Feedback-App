@@ -13,6 +13,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -118,7 +120,7 @@ fun RegisterScreen(
             trailingIcon = {
                 IconButton(onClick = { isConfirmPasswordVisible = !isConfirmPasswordVisible }) {
                     Icon(
-                        if (isConfirmPasswordVisible) Icons.Default.Person else Icons.Default.Lock,
+                        if (isPasswordVisible) Icons.Filled.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = if (isConfirmPasswordVisible) "Hide password" else "Show password"
                     )
                 }
