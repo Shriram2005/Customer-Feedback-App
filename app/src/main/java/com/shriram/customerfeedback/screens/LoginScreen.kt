@@ -1,3 +1,4 @@
+package com.shriram.customerfeedback.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,12 +12,15 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,16 +35,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.shriram.customerfeedback.data.AppViewModel
 import com.shriram.customerfeedback.navigation.Screen
 
 
 @Composable
 fun LoginScreen(
     navController: NavController,
+    viewModel: AppViewModel
 ) {
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
+    
+    // Check if user is already logged in
+    LaunchedEffect(viewModel.currentUser) {
+        if (viewModel.currentUser != null) {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.Login.route) { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -57,10 +72,10 @@ fun LoginScreen(
         )
 
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") },
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Username") },
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Email") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -87,24 +102,40 @@ fun LoginScreen(
 
         Button(
             onClick = {
-//                onLoginClick()
-                navController.navigate(Screen.Home.route)
+                if (email.isNotEmpty() && password.isNotEmpty()) {
+                    viewModel.loginUser(email, password) {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    }
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp)
+                .height(50.dp),
+            enabled = !viewModel.isLoading
         ) {
-            Text(text = "Login")
+            if (viewModel.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.height(24.dp))
+            } else {
+                Text(text = "Login")
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         TextButton(onClick = {
-//            onRegisterClick()
             navController.navigate(Screen.Register.route)
-
         }) {
             Text(text = "Don't have an account? Register")
+        }
+        
+        // Show error message if any
+        viewModel.errorMessage?.let { error ->
+            Spacer(modifier = Modifier.height(16.dp))
+            Snackbar {
+                Text(text = error)
+            }
         }
     }
 }
@@ -114,5 +145,6 @@ fun LoginScreen(
 @Composable
 private fun LoginScreenPreview() {
     val navController = rememberNavController()
-    LoginScreen(navController)
+    val viewModel = AppViewModel()
+    LoginScreen(navController, viewModel)
 }

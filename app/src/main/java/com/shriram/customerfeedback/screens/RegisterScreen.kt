@@ -14,9 +14,11 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -35,12 +38,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.shriram.customerfeedback.data.AppViewModel
 import com.shriram.customerfeedback.navigation.Screen
 
-@Preview
 @Composable
 fun RegisterScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: AppViewModel
 ) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -54,7 +59,7 @@ fun RegisterScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-//        horizontalAlignment = LineHeightStyle.Alignment.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
@@ -94,7 +99,7 @@ fun RegisterScreen(
             trailingIcon = {
                 IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                     Icon(
-                        if (isPasswordVisible) Icons.Default.Person else Icons.Default.Person,
+                        if (isPasswordVisible) Icons.Default.Person else Icons.Default.Lock,
                         contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
                     )
                 }
@@ -113,7 +118,7 @@ fun RegisterScreen(
             trailingIcon = {
                 IconButton(onClick = { isConfirmPasswordVisible = !isConfirmPasswordVisible }) {
                     Icon(
-                        if (isConfirmPasswordVisible) Icons.Default.Email else Icons.Default.Person,
+                        if (isConfirmPasswordVisible) Icons.Default.Person else Icons.Default.Lock,
                         contentDescription = if (isConfirmPasswordVisible) "Hide password" else "Show password"
                     )
                 }
@@ -125,22 +130,39 @@ fun RegisterScreen(
 
         Button(
             onClick = {
-//                onRegisterClick()
-                Toast.makeText(context, "Registration successful!", Toast.LENGTH_SHORT).show()
-                navController.navigate(Screen.Login.route)
-                      },
+                if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
+                    if (password == confirmPassword) {
+                        viewModel.registerUser(email, password, username) {
+                            Toast.makeText(context, "Registration successful!", Toast.LENGTH_SHORT).show()
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(Screen.Register.route) { inclusive = true }
+                            }
+                        }
+                    } else {
+                        Toast.makeText(context, "Passwords do not match!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp)
+                .height(50.dp),
+            enabled = !viewModel.isLoading
         ) {
-            Text(text = "Sign Up")
+            if (viewModel.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.height(24.dp))
+            } else {
+                Text(text = "Sign Up")
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         TextButton(onClick = {
-//            onLoginClick()
-            navController.navigate("login")
+            navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Register.route) { inclusive = true }
+            }
         }) {
             Text(
                 text = "Already have an account? Login",
@@ -148,5 +170,21 @@ fun RegisterScreen(
                 textAlign = TextAlign.Center
             )
         }
+        
+        // Show error message if any
+        viewModel.errorMessage?.let { error ->
+            Spacer(modifier = Modifier.height(16.dp))
+            Snackbar {
+                Text(text = error)
+            }
+        }
     }
+}
+
+@Preview
+@Composable
+private fun RegisterScreenPreview() {
+    val navController = rememberNavController()
+    val viewModel = AppViewModel()
+    RegisterScreen(navController, viewModel)
 }
