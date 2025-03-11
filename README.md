@@ -67,14 +67,6 @@ A mobile application that allows businesses to collect, manage, and respond to c
    - See details including username and timestamp
    - Click on any feedback to edit or delete it
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## Contact
 
 For any questions or suggestions, please open an issue on GitHub or contact the repository owner.
