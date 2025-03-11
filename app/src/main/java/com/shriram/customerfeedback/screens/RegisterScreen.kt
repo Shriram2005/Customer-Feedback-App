@@ -76,6 +76,7 @@ fun RegisterScreen(
             onValueChange = { username = it },
             label = { Text("Username") },
             leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Username") },
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -87,6 +88,7 @@ fun RegisterScreen(
             label = { Text("Email") },
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -98,10 +100,11 @@ fun RegisterScreen(
             label = { Text("Password") },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Password") },
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            singleLine = true,
             trailingIcon = {
                 IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                     Icon(
-                        if (isPasswordVisible) Icons.Default.Person else Icons.Default.Lock,
+                        if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
                     )
                 }
@@ -117,10 +120,11 @@ fun RegisterScreen(
             label = { Text("Confirm Password") },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Confirm Password") },
             visualTransformation = if (isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            singleLine = true,
             trailingIcon = {
                 IconButton(onClick = { isConfirmPasswordVisible = !isConfirmPasswordVisible }) {
                     Icon(
-                        if (isPasswordVisible) Icons.Filled.Visibility else Icons.Default.VisibilityOff,
+                        if (isConfirmPasswordVisible) Icons.Filled.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = if (isConfirmPasswordVisible) "Hide password" else "Show password"
                     )
                 }

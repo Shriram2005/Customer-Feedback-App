@@ -1,6 +1,7 @@
 package com.shriram.customerfeedback.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
@@ -48,15 +50,17 @@ fun FeedbackScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = if (isEditMode) "Edit Feedback" else "Add Feedback",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 32.dp)
+            modifier = Modifier.padding(vertical = 32.dp),
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         // text input for feedback
@@ -97,15 +101,12 @@ fun FeedbackScreen(
                 }
             },
             enabled = !viewModel.isLoading,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF78D0B1)
-            ),
             modifier = Modifier.fillMaxWidth()
         ) {
             if (viewModel.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.height(24.dp))
             } else {
-                Text(text = if (isEditMode) "Update" else "Submit")
+                Text(text = if (isEditMode) "Update" else "Submit", color = MaterialTheme.colorScheme.onSecondary)
             }
         }
         
@@ -126,7 +127,7 @@ fun FeedbackScreen(
             ),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Cancel")
+            Text(text = "Cancel", color = MaterialTheme.colorScheme.onSecondary)
         }
         
         // Show error message if any
