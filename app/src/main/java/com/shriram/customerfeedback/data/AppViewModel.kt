@@ -117,6 +117,16 @@ class AppViewModel : ViewModel() {
                 errorMessage = null
                 
                 currentUser?.let { user ->
+                    // Check if feedback with same text already exists
+                    val duplicateFeedback = feedbackList.find { it.text.trim() == text.trim() }
+                    
+                    if (duplicateFeedback != null) {
+                        // Feedback with same text already exists
+                        errorMessage = "Feedback already exists"
+                        isLoading = false
+                        return@launch
+                    }
+                    
                     val feedbackRef = database.child("feedbacks").push()
                     val feedbackId = feedbackRef.key ?: return@let
                     

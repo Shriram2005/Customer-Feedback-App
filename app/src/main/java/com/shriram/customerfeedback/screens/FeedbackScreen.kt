@@ -66,7 +66,11 @@ fun FeedbackScreen(
         // text input for feedback
         OutlinedTextField(
             value = feedbackText,
-            onValueChange = { feedbackText = it },
+            onValueChange = { 
+                feedbackText = it
+                // Clear error message when text changes
+                viewModel.errorMessage = null
+            },
             label = { Text("Enter your feedback") },
             modifier = Modifier
                 .fillMaxWidth()

@@ -23,7 +23,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -42,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -125,7 +123,6 @@ fun AdminDashboard(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-                
                 // Feedback List
                 LazyColumn(
                     modifier = Modifier.weight(1f)
@@ -215,12 +212,34 @@ fun FeedbackCard(
                 Text(
                     text = formattedDate,
                     fontSize = 14.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
             
             Spacer(modifier = Modifier.height(8.dp))
             HorizontalDivider()
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // User name row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "From:",
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = feedback.username,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            
             Spacer(modifier = Modifier.height(8.dp))
             
             Text(
@@ -238,7 +257,7 @@ fun FeedbackCard(
                     Icon(
                         Icons.Default.Visibility,
                         contentDescription = "View",
-                        tint = Color.Blue
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
                 
@@ -246,6 +265,7 @@ fun FeedbackCard(
                     Icon(
                         Icons.Default.Edit,
                         contentDescription = "Edit",
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
                 
@@ -253,7 +273,7 @@ fun FeedbackCard(
                     Icon(
                         Icons.Default.Delete,
                         contentDescription = "Delete",
-                        tint = Color.Red
+                        tint = MaterialTheme.colorScheme.error
                     )
                 }
             }
@@ -320,7 +340,7 @@ fun ViewFeedbackDialog(
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))
-                Divider()
+                HorizontalDivider()
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
@@ -348,4 +368,3 @@ fun ViewFeedbackDialog(
         }
     }
 }
-
